@@ -38,15 +38,29 @@ install_docker(){
 }
 
 #安装幻兽帕鲁服务端
-install_pal_server(){
+start_pal_server(){
+    read -p "请输入要使用的主机端口号: " host_port
+
+    # 检查端口是否可用
+    if lsof -Pi :${host_port} -sTCP:LISTEN -t >/dev/null; then
+        echo -e "${Red}端口 ${host_port} 已被占用，无法启动服务！${Font}"
+        return 1
+    fi
+
     if [ $(docker ps -a -q -f name=steamcmd) ]; then
-        echo -e "${Red}幻兽帕鲁服务端已存在，安装失败！${Font}"
+        echo -e "${Green}开始启动幻兽帕鲁服务端...${Font}"
+
+        # 映射主机的端口到容器的80端口
+        docker start -p ${host_port}:8211 --restart=unless-stopped steamcmd
+
+        echo -e "${Green}幻兽帕鲁服务端已成功启动！${Font}"
     else
-        echo -e "${Green}开始安装幻兽帕鲁服务端...${Font}"
-        docker run -dit --name steamcmd --net host miaowmint/palworld
-        echo -e "${Green}幻兽帕鲁服务端已成功安装并启动！${Font}"
+        echo -e "${Red}幻兽帕鲁服务端不存在，启动失败！${Font}"
     fi
 }
+
+
+
 
 #启动幻兽帕鲁服务端
 start_pal_server(){
@@ -120,9 +134,9 @@ if [ $? -ne 0 ]; then
     mkswap /swapfile
     swapon /swapfile
     echo '/swapfile none swap defaults 0 0' >> /etc/fstab
-         echo -e "${Green}swap创建成功，并查看信息：${Font}"
-         cat /proc/swaps
-         cat /proc/meminfo | grep Swap
+        echo -e "${Green}swap创建成功，并查看信息：${Font}"
+        cat /proc/swaps
+        cat /proc/meminfo | grep Swap
 else
     echo -e "${Red}swapfile已存在，swap设置失败${Font}"
 fi
@@ -132,13 +146,13 @@ fi
 add_restart(){
     if [ $(docker ps -a -q -f name=steamcmd) ]; then
         echo -e "${Green}开始增加定时重启...${Font}"
-        echo -e "${Green}1、每天凌晨5点${Font}"
+        echo -e "${Green}1、每天凌晨4点10分${Font}"
         echo -e "${Green}2、每12小时（每天0点/12点）${Font}"
         echo -e "${Green}3、自定义${Font}"
         read -p "请输入数字 [1-3]:" num
         case "$num" in
             1)
-            echo "0 5 * * * docker restart steamcmd" >> /etc/crontab
+            echo "10 4 * * * docker restart steamcmd" >> /etc/crontab
             ;;
             2)
             echo "0 */12 * * * docker restart steamcmd" >> /etc/crontab
@@ -243,7 +257,7 @@ update_in_container(){
 
 #使用watchtower更新
 update_with_watchtower(){
-     if [ $(docker ps -a -q -f name=steamcmd) ]; then
+    if [ $(docker ps -a -q -f name=steamcmd) ]; then
         read -p "请注意，此操作会自动进行存档备份，会覆盖之前导出的存档，按回车键继续，输入任何内容退出脚本: " continue_update2
         if [ -n "$continue_update2" ]; then
             echo "退出脚本"
@@ -265,7 +279,7 @@ update_with_watchtower(){
             docker restart steamcmd
             echo -e "${Green}幻兽帕鲁服务端已成功重启！${Font}"
             echo -e "${Green}幻兽帕鲁存档及配置已成功导入！${Font}"
-            echo -e "${Green}应该是更新成功了，快去试试能否登录吧，如果有问题请到腾讯云社区的文章评论下反馈 https://cloud.tencent.com/developer/article/2383539 ${Font}"
+            echo -e "${Green}应该是更新成功了，快去试试能否登录吧 ${Font}"
         fi
     else
         echo -e "${Red}幻兽帕鲁服务端不存在，导出失败！${Font}"
@@ -274,7 +288,7 @@ update_with_watchtower(){
 
 #更新管理面板
 update_sh(){
-    curl -o palinstall.sh https://raw.githubusercontent.com/miaowmint/palworld/main/install.sh && chmod +x palinstall.sh && bash palinstall.sh
+    curl -o palinstall.sh https://raw.githubusercontent.com/JianGangLi/palworld/main/install.sh && chmod +x palinstall.sh && bash palinstall.sh
 }
 
 #开始菜单
@@ -283,12 +297,10 @@ root_need
 ovz_no
 install_docker
 clear
-echo -e "———————————————————————————————————————v20230126_133000"
-echo -e "${Red}由于此脚本为赶工做出的，如发现脚本有任何bug或逻辑问题或改进方案，请发邮件到 cat@acat.email 联系我${Font}"
 echo -e "———————————————————————————————————————"
 echo -e "${Red}后续管理幻兽帕鲁服务端，只需要在命令行输入\033[32m palworld \033[0m即可${Font}"
 echo -e "———————————————————————————————————————"
-echo -e "推荐使用腾讯云服务器搭建，通过专属活动购买 4核16G 服务器，首月仅需 66 ，链接: https://curl.qcloud.com/UhCol3eZ "
+echo -e "推荐使用腾讯云服务器搭建，通过专属活动购买 4核16G 服务器，首月仅需 66 ，链接: https://curl.qcloud.com/H5k50L9d "
 echo -e "———————————————————————————————————————"
 echo -e "${Green}0、更新管理面板${Font}"
 echo -e "${Green}1、安装幻兽帕鲁服务端${Font}"
