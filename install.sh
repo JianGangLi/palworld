@@ -35,8 +35,8 @@ mkdir -p /usr/local/sh && curl -o /usr/local/sh/palworld.sh https://raw.githubus
 
 ln -s /usr/local/sh/palworld.sh /usr/local/bin/palworld && chmod +x /usr/local/bin/palworld
 
-echo -e "后续管理幻兽帕鲁服务端，只需要在命令行输入\033[32m palworld \033[0m即可"
+echo -e "命令行输入\033[32m palworld \033[0m即可"
 
-sleep 5s
+# sleep 5s
 
-palworld
+# palworld
