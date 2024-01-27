@@ -15,7 +15,6 @@ echo '                                                       '
 
 echo "此脚本在来自 https://www.xuehaiwu.com/palworld-server/ 的脚本的基础上进行修改"  
 sleep 3s  
-echo "感谢腾讯云提供的测试服务器"    
 
 
 if [[ $EUID -ne 0 ]]; then
@@ -29,8 +28,8 @@ if ! command -v curl &> /dev/null; then
     sudo apt install -y curl
 fi
 
-rm /usr/local/bin/palworld
-rm /usr/local/sh/palworld.sh
+rm -f /usr/local/bin/palworld
+rm -f /usr/local/sh/palworld.sh
 
 mkdir -p /usr/local/sh && curl -o /usr/local/sh/palworld.sh https://raw.githubusercontent.com/JianGangLi/palworld/main/install.sh
 
